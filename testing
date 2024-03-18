@@ -1,0 +1,41 @@
+import streamlit as st
+import pandas as pd
+import altair as alt
+
+def main():
+    st.title("CSV File Upload and Display App")
+    
+    # File upload section for CSV files
+    uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
+    
+    # Check if a file was uploaded
+    if uploaded_file is not None:
+        # Load CSV file into a DataFrame
+        df = pd.read_csv(uploaded_file)
+        
+        # Display DataFrame
+        st.write("Uploaded CSV file:")
+        st.dataframe(df)
+        
+        # Check if 'Start date' and 'Due date' columns exist in the DataFrame
+        if 'Start date' in df.columns and 'Due Date' in df.columns:
+            # Chart title
+            st.write("Timeline View")
+            
+            # Chart for timeline view
+            chart = alt.Chart(df).mark_bar().encode(
+                x=alt.X('month(Start date)', title='Month'),
+                x2='month(Due Date)',
+                y=alt.Y('Epic Name', title='Epic'),
+                color=alt.Color('Epic Name', legend=None)
+            ).properties(
+                width=800,
+                height=400
+            ).interactive()
+            
+            st.altair_chart(chart, use_container_width=True)
+        else:
+            st.write("Start date and/or Due date columns not found in the CSV file.")
+
+if __name__ == "__main__":
+    main()
